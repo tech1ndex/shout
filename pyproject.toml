@@ -169,7 +169,6 @@ lint.ignore = [
     "D104",    # Missing docstring
     "D106",    # Missing docstring
     "D107",    # Missing docstring in __init__
-    "T201",    # print found
 ]
 lint.ignore-init-module-imports = true
 line-length = 120
