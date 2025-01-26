@@ -3,21 +3,33 @@ import time
 from datetime import datetime
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 import vlc
 import zoneinfo
-from logger import logger
+from src.shout.logger import logger
 from src.shout.settings import Settings
 
 settings = Settings(
     api_url="https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?", # If using ESPN API
-    team_name="Bills", # Team name to track
-    victory_sound_path="/some/path/GoBills.m4a", # Path to sound file
+    team_name="Commanders", # Team name to track
+    victory_sound_path="/Users/tech1ndex/Desktop/GoBills.m4a", # Path to sound file
     )
 
 current_date = datetime.now(zoneinfo.ZoneInfo('America/New_York')).strftime("%Y%m%d")
 
 def update_score() -> json:
-    response = requests.get(f"{settings.api_url}/dates={current_date}", timeout=10)
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+
+    response = http.get(f"{settings.api_url}/dates={current_date}", timeout=10)
     return response.json()
 
 def get_team_score(data: json, team_name: str) -> dict | None:
