@@ -13,7 +13,7 @@ from src.shout.settings import Settings
 
 settings = Settings(
     api_url="https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?", # If using ESPN API
-    team_name="Commanders", # Team name to track
+    team_name="Bills", # Team name to track
     victory_sound_path="/Users/tech1ndex/Desktop/GoBills.m4a", # Path to sound file
     )
 
@@ -52,14 +52,16 @@ def main() -> None:
     logger.info(f"Team is: {current_team}")
     logger.info(f"Current score is: {current_score}")
     while True:
+        logger.info(f"Checking for score updates...")
         live_score = int(get_team_score(data=update_score(), team_name=settings.team_name)['score'])
         if abs(live_score - current_score) > 1:
-            logger.info(f"Score has been updated to {live_score}")
+            logger.info(f"Score Alert! {current_team} have scored! New score is: {live_score}")
+            logger.info(f"Current Score has been updated to {live_score}")
             player = vlc.MediaPlayer(f'file://{settings.victory_sound_path}')
             player.play()
             current_score = live_score
 
-            time.sleep(20) # Frequency to check the score
-
+            time.sleep(20) # Pause for 20 seconds to prevent multiple alerts
+        time.sleep(2)
 if __name__ == "__main__":
     main()
